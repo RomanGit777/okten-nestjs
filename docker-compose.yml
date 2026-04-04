@@ -2,6 +2,6 @@ services:
   db:
     image: mysql:8
     environment:
-      - .env.db
+      - .env
     ports:
       - "3307:3306"
