@@ -1,49 +1,25 @@
-L3:
-1. create token.entity
-   add changes to user.entity
-   Create a one-to-many relationship that we could have two new tables in db : user and tokens, and tokens will have 
-   userId as a foreign key
+L4:
 
-2. create refresh-token.dto
-   Define shape of data
+1. add more credential to .env,
+   create shared module in src(add configModule to imports) + services dir: env.service.ts (add it to shared.module)
+   We centralize all environment variables in one shared service so the whole application can access configuration safely, consistently, and with default values that prevent runtime errors.
 
-3. add changes to auth.service
-   inject config & refreshRepo
-   add jti to payload that we can find the token in db later by jti (unique identifier inside a JWT token)
+2. typeorm.module : add changes
+   We create a dedicated TypeORM module that loads configuration from EnvService. This centralizes all database settings, provides safe defaults, prevents runtime errors, and keeps the application architecture clean and maintainable.
 
-4. .env : add access token exp, refresh exp,
-   add it to have exp time for tokens.
+3. create ormconfig.ts in root
+   We need a standalone ormconfig/data-source file because TypeORM CLI runs outside NestJS and cannot use dependency injection. This file provides a plain DataSource instance so migrations and CLI commands can work.
 
-5. create interface for tokens & add changes to auth.service : 
-We do it to create method to create tokens and save them to db, this method we'll add to login method.
-We also add method for refresh tokens, and for logout.
+4. devdep: cross-var, scripts: typeorm, migration:generate, migration:run, migration:revert
+   (clean db) in console: npm run migration:generate --name=first
 
-6. add changes to auth module : add Token to typeorm that tables will be created, delete line where jwt expires takes 
-   (we do it manually).
 
-7. add new methods in controller
-   That controller knows what to do when request comes
+1. What all this steps are made finally?
+   All these steps together give us a safer and more maintainable app: configuration is centralized and validated, database settings are consistent and environment‑driven, and schema changes are handled through explicit migrations instead of implicit sync.
 
-8. add changes to jwt.strategy
-   That method will check token existence in db, that it's valid token of an valid user 
 
-Flow of logout:
-1. Server get request, takes refresh token from req.body, check if token is valid in db, then block it and save 
-   changes to db, that user can't refresh any more by that token.
-
-Flow of refresh: 
-1. Server get request, takes refresh token from req.body, verify it by jwtService, check token existence in db,
-that it's valid token of an valid user, if it is, block the token and take from it payload, using payload create new 
-   tokens, save them in db and return new tokens to user
-
-Also changed a bit login, that it will sign a pair of new tokens,save them, and return them.
-
-Full Flow of All Files Working Together:
-
-AppModule
-├── TypeOrmModule → connects to DB
-└── TablesModule
-    ├── loads Table entity
-    ├── creates Table repository
-    ├── registers TablesService
-    └── registers TablesController
+Flow:
+We centralized all env vars by creating a shared module, made access for the whole app safer, and prevented runtime errors because of default values.
+We changed TypeORM to load async so it can use EnvService, and we disabled synchronize because automatic schema sync is only safe in early development. In real projects we rely on migrations instead, to control and track schema changes.
+We created a ormconfig that TypeORM could get all configuration
+We added some scripts and dependencies that we can use migration
