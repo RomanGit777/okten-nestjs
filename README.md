@@ -1,44 +1,42 @@
-L2:
-1. create via schematic cli resource for auth.
+L3:
+1. create token.entity
+   add changes to user.entity
+   Create a one-to-many relationship that we could have two new tables in db : user and tokens, and tokens will have 
+   userId as a foreign key
 
-2. dep: @nestjs/passport, bcrypt, passport-jwt, nestjs/jwt, passport, nestjs/config
+2. create refresh-token.dto
+   Define shape of data
 
-3. create .env
-   for jwt_sercet + exp.time
+3. add changes to auth.service
+   inject config & refreshRepo
+   add jti to payload that we can find the token in db later by jti (unique identifier inside a JWT token)
 
-4. app.module : import ConfigModule
-   ConfigModule loads .env file and makes all variables available across entire app.
+4. .env : add access token exp, refresh exp,
+   add it to have exp time for tokens.
 
-5. create dir dto, login.dto, register.dto
-   Create dtos to define, validate and safely control the shape of incoming data before it reaches your business logic
+5. create interface for tokens & add changes to auth.service : 
+We do it to create method to create tokens and save them to db, this method we'll add to login method.
+We also add method for refresh tokens, and for logout.
 
-6. create dir entities, user.entity
-   Entities represent your data model (it's describe stored database data)
-   Create funcs hashPass & validatePass inside to ensure hashing always happens
+6. add changes to auth module : add Token to typeorm that tables will be created, delete line where jwt expires takes 
+   (we do it manually).
 
-7. create service for authetication
-   register,login,validateUser
+7. add new methods in controller
+   That controller knows what to do when request comes
 
-6.create dir interface, jwt-payload.interface
+8. add changes to jwt.strategy
+   That method will check token existence in db, that it's valid token of an valid user 
 
-7. create jwt.strategy.ts in src
-   validate method
+Flow of logout:
+1. Server get request, takes refresh token from req.body, check if token is valid in db, then block it and save 
+   changes to db, that user can't refresh any more by that token.
 
-8. add changes to auth.module
+Flow of refresh: 
+1. Server get request, takes refresh token from req.body, verify it by jwtService, check token existence in db,
+that it's valid token of an valid user, if it is, block the token and take from it payload, using payload create new 
+   tokens, save them in db and return new tokens to user
 
-9. add changes to auth controller
-
-Flow register: 
-1. Server get request, takes info from body, create it in db, return saved new user.
-
-Flow login:
-1. Server get request, takes info from body, validate name+password, return user, from user we extract id + name, 
-   and sign jwtToken.
-
-Flow profile: 
-1.  Server get request, takes payload from jwt in request, calls jwt strategy, validate and decode token, give back 
-    info extracted from payload.
-
+Also changed a bit login, that it will sign a pair of new tokens,save them, and return them.
 
 Full Flow of All Files Working Together:
 
