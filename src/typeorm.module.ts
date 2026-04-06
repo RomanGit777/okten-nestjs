@@ -4,7 +4,7 @@ import { SharedModule } from './shared/shared.module';
 import { EnvService } from './shared/services/env.service';
 
 // This file defines a NestJS module whose only job is to configure TypeORM and connect your app to your MySQL database.
-// It’s basically the “database connection setup” for your whole application.
+// It's basically the "database connection setup" for your whole application.
 
 @Module({
   imports: [
@@ -20,6 +20,7 @@ import { EnvService } from './shared/services/env.service';
         migrations: [__dirname + '/migrations/*{.ts,.js}'],
         entities: [__dirname + '/**/*.entity{.ts,.js}'],
         synchronize: false,
+        logging: false,
       }),
       inject: [EnvService],
     }),
