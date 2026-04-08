@@ -5,7 +5,8 @@ LABEL maintainer='Some DEV'
 RUN mkdir /app
 WORKDIR /app
 
-COPY package.json ./
+COPY backend/package.json ./
 RUN npm i --production
+RUN npm i -g @nestjs/cli
 
-COPY dist/ ./dist
+COPY backend/dist/ ./dist
