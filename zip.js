@@ -10,7 +10,6 @@ archive.pipe(output);
 // Add folders
 archive.directory("backend/", "backend");
 archive.directory("client/", "client");
-archive.directory("mysql_db/", "mysql_db");
 // Add files
 archive.file(".env", { name: ".env" });
 archive.file("docker-compose.yml", { name: "docker-compose.yml" });
